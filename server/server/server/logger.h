@@ -4,6 +4,7 @@
 #include <thread>
 #include <shared_mutex>
 #include <chrono>
+#include <string>
 class Logger {
 public:
 	Logger(const std::string& _fname, const std::string& _input_str);

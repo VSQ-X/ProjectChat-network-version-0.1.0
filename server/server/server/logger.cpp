@@ -26,6 +26,11 @@ void Logger::insertLog() {
 }
 void Logger::getInfoAboutMessage() {
 	m.lock_shared();
-	std::cout << "Info about message: "<<input_string << std::endl;
+	std::ifstream inputFile(filename);
+	std::string line;
+	while (std::getline(inputFile, line)) {
+		std::cout << line << " " << "\n";
+	}
+	inputFile.close();
 	m.unlock_shared();
 }

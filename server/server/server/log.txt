@@ -17,3 +17,5 @@ from: player, message: testest
 9','1','hihihi','2024-10-20 18:16:15
 from: aldi, message: testtestest
 from: aldi, message: testeste
+from: aldi, message: muti_test
+1','9','hello_my_bruh','2024-10-20 18:42:41
