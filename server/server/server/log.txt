@@ -1,0 +1,19 @@
+1','9','hello_hello_test','2024-10-20 17:38:01
+from: aldi, message: helllll
+1','9','test_1','2024-10-20 17:40:43
+1','9','hihihihqqqqqq','2024-10-20 17:41:16
+from: aldi, message: TEST.-
+from: aldi, message: TEST.-
+from: aldi, message: TEST.-
+from: aldi, message: TEST.-
+from: aldi, message: hello_again
+from: aldi, message: hello_again
+from: player, message: hello_guys_test
+from: player, message: hello_guys_test
+from: aldi, message: hello_my_dear_guys_test
+from: aldi, message: test_test
+1','9','hihihih','2024-10-20 18:15:10
+from: player, message: testest
+9','1','hihihi','2024-10-20 18:16:15
+from: aldi, message: testtestest
+from: aldi, message: testeste

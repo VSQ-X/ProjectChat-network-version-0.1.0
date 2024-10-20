@@ -1,4 +1,4 @@
-#include <iostream>
+#include "logger.h"
 #include <sstream>
 #include <string>
 #include <winsock2.h>
@@ -14,7 +14,7 @@ MYSQL_RES* res;
 MYSQL_ROW row;
 SOCKET clientSocket;
 string response_to_client;
-void showPersonalMessages(string& mes, SOCKET clientSocket) {
+void showPersonalMessages(string& mes, SOCKET clientSocket) { //вывод личных сообщений
     int user_id=0;
     string user_login = mes.substr(2);
     string temp;
@@ -54,7 +54,7 @@ void showPersonalMessages(string& mes, SOCKET clientSocket) {
     send(clientSocket, response_to_client.c_str(), response_to_client.size(), 0);
     }
 }
-void showListOfUsers(SOCKET clientSocket)
+void showListOfUsers(SOCKET clientSocket)//вывод списка пользователей
 {
     response_to_client = "";
     string tmp;
@@ -73,7 +73,7 @@ void showListOfUsers(SOCKET clientSocket)
     send(clientSocket, response_to_client.c_str(), response_to_client.size(), 0);
     mysql_free_result(res);
 }
-void printPublicChatMes(SOCKET clientSocket)
+void printPublicChatMes(SOCKET clientSocket)//вывод общего чата
 {
     response_to_client = "";
     string tmp;
@@ -97,14 +97,12 @@ void printPublicChatMes(SOCKET clientSocket)
     send(clientSocket, response_to_client.c_str(), response_to_client.size(), 0);
     mysql_free_result(res);
 }
-void sendPublicMessage(string& mes, SOCKET clientSocket)
+void sendPublicMessage(string& mes, SOCKET clientSocket)//отправка публичного сообщения
 {
     int pos, end_pos;
     pos = mes.find("**");
     end_pos = mes.find("*L");
     string input = "from: " + mes.substr(pos + 2, end_pos - 2) +", message: "+ mes.substr(end_pos+2);
-    cout << mes <<endl;
-    cout << input << endl;
     string query = "INSERT INTO all_chat(message) values('"+input+"')";
     if (mysql_query(&mysql, query.c_str())) {
         response_to_client = mysql_error(&mysql);
@@ -113,9 +111,9 @@ void sendPublicMessage(string& mes, SOCKET clientSocket)
     }
     response_to_client = "message successfully delivered";
     send(clientSocket, response_to_client.c_str(), response_to_client.size(), 0);
-
+    Logger logger("log.txt", input);
 }
-void personalMess(string& mes, SOCKET clientSocket) {
+void personalMess(string& mes, SOCKET clientSocket) {//отправка личного сообщения
     std::time_t now = std::time(nullptr);
     std::tm* local_time = std::localtime(&now);
     char date_buffer[80];
@@ -124,13 +122,9 @@ void personalMess(string& mes, SOCKET clientSocket) {
     pos = mes.find("*P");
     mes_pos = mes.find("*S");
     end_pos = mes.find("*M");
-    //cout << mes.substr(end_pos + 2, mes.length()-end_pos-mes.substr(mes_pos).length()-2)<<endl;
-    //cout << mes.substr(pos + 2, end_pos - 2)<<endl;
-    //cout << mes.substr(mes_pos+2) << endl;
     string from_query = "SELECT id FROM users_list WHERE login = '" + mes.substr(mes_pos + 2) + "'";
     string to_query = "SELECT id FROM users_list WHERE login = '" + mes.substr(pos + 2, end_pos - 2) + "'";
     string temp;
-    //int from, to;
     int from_id = 0;
     int to_id = 0;
     mysql_query(&mysql, from_query.c_str()); //Делаем запрос к таблице
@@ -163,9 +157,11 @@ void personalMess(string& mes, SOCKET clientSocket) {
         return;
     }
     response_to_client = "message successfully delivered";
+    string log_str = to_string(from_id) + "','" + to_string(to_id) + "','" + mes.substr(end_pos + 2, mes.length() - end_pos - mes.substr(mes_pos).length() - 2) + "','" + string(date_buffer);
     send(clientSocket, response_to_client.c_str(), response_to_client.size(), 0);
+    Logger logger("log.txt", log_str);
 }
-void regUser(string& mes, SOCKET clientSocket) {
+void regUser(string& mes, SOCKET clientSocket) {//регистрация
     int pos, end_pos;
     pos = mes.find("*L");
     end_pos = mes.find("*P");
@@ -184,7 +180,7 @@ void regUser(string& mes, SOCKET clientSocket) {
         send(clientSocket, response_to_client.c_str(), response_to_client.size(), 0);
     }
 }
-void loginUser(string& mes, SOCKET clientSocket)
+void loginUser(string& mes, SOCKET clientSocket)//авторизация
 {
     int pos, end_pos;
     pos = mes.find("L*");
@@ -227,7 +223,7 @@ void loginUser(string& mes, SOCKET clientSocket)
     }
     flag = 0;
 }
-void handleClient(SOCKET clientSocket) {
+void handleClient(SOCKET clientSocket) {//обработка и прием сообщения отправленного с клиента
     char buffer[BUFFER_SIZE];
     int bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
     if (bytesReceived > 0) {
@@ -248,7 +244,7 @@ void handleClient(SOCKET clientSocket) {
         else {
             // Если соединение успешно установлено выводим фразу — "Success!"
             string mess = buffer;
-            if (mess.substr(0,2)=="*L")
+            if (mess.substr(0,2)=="*L")//блок отвечающий за парсинг строки на наличие кодовых фраз для выполнения соответсвующего запроса
             {
                 regUser(mess, clientSocket);
             }
@@ -279,9 +275,6 @@ void handleClient(SOCKET clientSocket) {
             {
                 exit(1);
             }
-            //std::string input_str = "INSERT INTO table_fromCplusplus(id, name) values(default, '" +mess+ "')";
-            //mysql_query(&mysql, input_str.c_str());
-            //cout << "Success!" << endl;
         }
     }
 }
